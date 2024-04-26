@@ -18,16 +18,26 @@ enum role_type {
   USER
 }
 
+enum payment_status {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 // A user with role-based authorisation
 model user {
   id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   username  String    @unique
   password  String
+  coin      Int       @default(0)
   createdAt DateTime  @default(now()) @db.Timestamp(6)
   deletedAt DateTime? @db.Timestamp(6)
 
-  userRoles user_role[]
-  books     book[]
+  userRoles      user_role[]
+  books          book[]
+  bids           bid[]
+  sentTrades     trade[]     @relation("sender")
+  receivedTrades trade[]     @relation("receiver")
 }
 
 // A collection of permissions on a specific collection of resources
@@ -82,8 +92,45 @@ model book {
   title       String
   author      String
   description String?
+  locked      Boolean  @default(false)
   createdAt   DateTime @default(now()) @db.Timestamp(6)
   updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
 
-  owner user? @relation(fields: [ownerId], references: [id])
+  owner  user?   @relation(fields: [ownerId], references: [id])
+  bids   bid[]
+  trades trade[]
+}
+
+model bid {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bidderId   String   @db.Uuid
+  bookId     String   @db.Uuid
+  amount     Float
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+
+  bidder user @relation(fields: [bidderId], references: [id])
+  book   book @relation(fields: [bookId], references: [id])
+}
+
+model trade {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bookId     String   @db.Uuid
+  senderId   String   @db.Uuid
+  receiverId String   @db.Uuid
+  createdAt  DateTime @default(now()) @db.Timestamp(6)
+
+  book     book     @relation(fields: [bookId], references: [id])
+  sender   user     @relation("sender", fields: [senderId], references: [id])
+  receiver user     @relation("receiver", fields: [receiverId], references: [id])
+  payment  payment?
+}
+
+model payment {
+  id      String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tradeId String         @unique @db.Uuid
+  amount  Float
+  status  payment_status @default(PENDING)
+
+  trade trade @relation(fields: [tradeId], references: [id])
 }
