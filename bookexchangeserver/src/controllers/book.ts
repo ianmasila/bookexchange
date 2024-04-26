@@ -171,6 +171,13 @@ const createBookHandler: Handler = async (req: Request, res: Response) => {
     const { username, title, author, genres, description, locked } = createBookParser.parse(req.body);
     try {
       const owner = await getUserByIdOrUsername({ username });
+      if (!owner) {
+        createResponse(res, {
+          status: HttpStatusCode.BadRequest,
+          error: 'Error. A book must belong to someone',
+        });
+        return;
+      }
       const newBook = await prisma.book.create({
         data: {
           title,
@@ -178,7 +185,7 @@ const createBookHandler: Handler = async (req: Request, res: Response) => {
           genre: genres,
           description,
           locked,
-          ownerId: owner?.id,
+          ownerId: owner.id,
         },
       });
 

@@ -109,7 +109,7 @@ model role_resource {
 
 model book {
   id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ownerId     String?   @db.Uuid
+  ownerId     String    @db.Uuid
   title       String
   author      String
   genre       genre[]
@@ -120,7 +120,7 @@ model book {
   updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
   deletedAt   DateTime? @db.Timestamp(6)
 
-  owner user? @relation(fields: [ownerId], references: [id])
+  owner user  @relation(fields: [ownerId], references: [id], onUpdate: Cascade)
   bids  bid[]
 }
 
