@@ -1,5 +1,4 @@
 import { Handler, Request, Response } from 'express';
-import { prisma } from '..';
 import { createResponse } from '../utils';
 import { z } from 'zod';
 import { HttpStatusCode } from 'axios';
@@ -33,8 +32,8 @@ const getUserByIdOrUsernameHandler: Handler = async (req: Request, res: Response
 };
 
 const getUserByIdOrUsernameParser = z.object({
-  id: z.coerce.string().optional(),
-  username: z.coerce.string().optional(),
+  id: z.string().optional(),
+  username: z.string().optional(),
 });
 
 export default {

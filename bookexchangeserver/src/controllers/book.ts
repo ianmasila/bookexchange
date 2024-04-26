@@ -200,15 +200,15 @@ const createBook: Handler = async (req: Request, res: Response) => {
 };
 
 const getBookByTitleParser = z.object({
-  title: z.coerce.string(),
+  title: z.string(),
 });
 
 const getBooksByAuthorParser = z.object({
-  author: z.coerce.string(),
+  author: z.string(),
 });
 
 const getBooksByOwnerParser = z.object({
-  username: z.coerce.string(),
+  username: z.string(),
 });
 
 const getBooksByGenreParser = z.object({
