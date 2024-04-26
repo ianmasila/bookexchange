@@ -1,6 +1,6 @@
 import { Handler, Request, Response } from 'express';
 import { prisma } from '..';
-import { createResponse } from '../utils';
+import { createResponse, excludeFromObject } from '../utils';
 import { z } from 'zod';
 import { HttpStatusCode } from 'axios';
 import { getUserByIdOrUsername } from '../utils/user';
@@ -14,6 +14,13 @@ const getBidForBook: Handler = async (req: Request, res: Response) => {
       const bids = await prisma.bid.findMany({
         where: {
           bookId,
+        },
+        include: {
+          bidder: {
+            select: {
+              username: true,
+            },
+          },
         },
         // Get pending, declined, accepted bids in that order
         orderBy: {
@@ -79,14 +86,14 @@ const createBidForBook: Handler = async (req: Request, res: Response) => {
 
 const updateBidForBook: Handler = async (req: Request, res: Response) => {
   try {
-    const data = updateBidForBookParser.parse(req.body);
+    const { id, amount } = updateBidForBookParser.parse(req.body);
     try {
       const updatedBid = await prisma.bid.update({
         where: {
-          id: data.id,
+          id,
         },
         data: {
-          amount: data?.amount,
+          amount,
         },
       });
 
@@ -128,7 +135,8 @@ const answerBidForBook: Handler = async (req: Request, res: Response) => {
           status: true,
         },
       });
-      result = updatedBid;
+      // Note: Exclude sensitive information to keep users' privacy
+      result = excludeFromObject(updatedBid, ['bidderId']);
 
       if (updatedBid.status === bid_status.ACCEPTED) {
         // Transfer ownership of book
@@ -136,8 +144,8 @@ const answerBidForBook: Handler = async (req: Request, res: Response) => {
           id: updatedBid.bookId,
           ownerId: updatedBid.bidderId,
         };
-        const updatedBook = updateBook(updateBookData);
-        result = updatedBook;
+        const updatedBook = await updateBook(updateBookData);
+        result = excludeFromObject(updatedBook, ['ownerId']);
       }
 
       createResponse(res, {
