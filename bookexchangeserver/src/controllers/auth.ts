@@ -31,47 +31,54 @@ const createAuthJwts = (user: user, role: role_type = role_type.USER, type: 'JWT
 
 const login: Handler = async (req: Request, res: Response) => {
   try {
-    const { username, password } = req.body;
-    const user = await prisma.user.findUnique({
-      where: {
-        username,
-      },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
+    const { username, password } = loginBodyParser.parse(req.body);
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          username,
+        },
+        include: {
+          userRoles: {
+            include: {
+              role: true,
+            },
           },
         },
-      },
-    });
-
-    let isPasswordCorrect = false;
-    if (user) {
-      isPasswordCorrect = await checkPassword(user, password);
-    }
-
-    if (!user || !isPasswordCorrect) {
-      createResponse(res, {
-        status: HttpStatusCode.Unauthorized,
-        error: 'Incorrect username or password',
       });
-      return;
+
+      let isPasswordCorrect = false;
+      if (user) {
+        isPasswordCorrect = await checkPassword(user, password);
+      }
+
+      if (!user || !isPasswordCorrect) {
+        createResponse(res, {
+          status: HttpStatusCode.Unauthorized,
+          error: 'Incorrect username or password',
+        });
+        return;
+      }
+
+      const isAdministrator = user.userRoles.some((userRole) => userRole.role.name === role_type.ADMINISTRATOR);
+      const { token } = createAuthJwts(user, isAdministrator ? role_type.ADMINISTRATOR : role_type.USER);
+
+      const userWithoutPassword = excludeFromObject(user, ['password']);
+      createResponse(res, {
+        data: {
+          user: userWithoutPassword,
+          token,
+        },
+      });
+    } catch (e) {
+      createResponse(res, {
+        status: HttpStatusCode.InternalServerError,
+        error: 'Sorry. Something went wrong',
+      });
     }
-
-    const isAdministrator = user.userRoles.some((userRole) => userRole.role.name === role_type.ADMINISTRATOR);
-    const { token } = createAuthJwts(user, isAdministrator ? role_type.ADMINISTRATOR : role_type.USER);
-
-    const userWithoutPassword = excludeFromObject(user, ['password']);
-    createResponse(res, {
-      data: {
-        user: userWithoutPassword,
-        token,
-      },
-    });
   } catch (e) {
     createResponse(res, {
-      status: HttpStatusCode.InternalServerError,
-      error: 'Sorry. Something went wrong',
+      status: HttpStatusCode.BadRequest,
+      error: 'Bad request',
     });
   }
 };
@@ -79,117 +86,71 @@ const login: Handler = async (req: Request, res: Response) => {
 const register: Handler = async (req: Request, res: Response) => {
   try {
     const { username, password, role } = registerBodyParser.parse(req.body);
-    const user = await prisma.user.findFirst({
-      where: {
-        username,
-      },
-    });
-
-    if (user) {
-      createResponse(res, {
-        status: HttpStatusCode.BadRequest,
-        error: `${username} unavailable`,
+    try {
+      const user = await prisma.user.findFirst({
+        where: {
+          username,
+        },
       });
-      return;
-    }
 
-    const foundRole = await prisma.role.findUnique({
-      where: {
-        name: role,
-      },
-    });
+      if (user) {
+        createResponse(res, {
+          status: HttpStatusCode.BadRequest,
+          error: `${username} unavailable`,
+        });
+        return;
+      }
 
-    const passwordHash = await bcrypt.hash(password, 10);
-    const newUser = await prisma.user.create({
-      data: {
-        username,
-        password: passwordHash,
-        ...(foundRole && {
+      const foundRole = await prisma.role.findUnique({
+        where: {
+          name: role,
+        },
+      });
+
+      const passwordHash = await bcrypt.hash(password, 10);
+      const newUser = await prisma.user.create({
+        data: {
+          username,
+          password: passwordHash,
+          ...(foundRole && {
+            userRoles: {
+              create: [
+                {
+                  roleId: foundRole.id,
+                },
+              ],
+            },
+          }),
+        },
+        include: {
           userRoles: {
-            create: [
-              {
-                roleId: foundRole.id,
-              },
-            ],
-          },
-        }),
-      },
-      include: {
-        userRoles: {
-          include: {
-            role: true,
+            include: {
+              role: true,
+            },
           },
         },
-      },
-    });
+      });
 
-    const isAdministrator = newUser.userRoles.some((userRole) => userRole.role.name === role_type.ADMINISTRATOR);
-    const { token } = createAuthJwts(newUser, isAdministrator ? role_type.ADMINISTRATOR : role_type.USER);
-    const userWithoutPassword = excludeFromObject(newUser, ['password']);
+      const isAdministrator = newUser.userRoles.some((userRole) => userRole.role.name === role_type.ADMINISTRATOR);
+      const { token } = createAuthJwts(newUser, isAdministrator ? role_type.ADMINISTRATOR : role_type.USER);
+      const userWithoutPassword = excludeFromObject(newUser, ['password']);
 
-    createResponse(res, {
-      data: { user: userWithoutPassword, token },
-    });
+      createResponse(res, {
+        data: { user: userWithoutPassword, token },
+      });
+    } catch (e) {
+      createResponse(res, {
+        status: HttpStatusCode.InternalServerError,
+        error: 'Sorry. Something went wrong',
+      });
+    }
   } catch (e) {
     createResponse(res, {
-      status: HttpStatusCode.InternalServerError,
-      error: 'Sorry. Something went wrong',
+      status: HttpStatusCode.BadRequest,
+      error: 'Bad request',
     });
   }
 };
-
-// FIXME: Typing issue with req: Request
-// const verifyPassword = async (req: Request, res: Response) => {
-//   try {
-//     const { password } = verifyPasswordBodyParser.parse(req.body);
-//     if (!req?.user?.id) {
-//       createResponse(res, {
-//         status: HttpStatusCode.BadRequest,
-//         error: 'Something went wrong',
-//       });
-//       return;
-//     }
-//     const user = await prisma.user.findFirst({
-//       where: {
-//         id: req?.user?.id,
-//       },
-//     });
-//     if (!user) {
-//       createResponse(res, {
-//         status: HttpStatusCode.BadRequest,
-//         error: 'Something went wrong',
-//       });
-//       return;
-//     }
-//     const isPasswordCorrect = await checkPassword(user, password);
-//     if (!isPasswordCorrect) {
-//       createResponse(res, {
-//         status: HttpStatusCode.BadRequest,
-//         error: 'Incorrect password',
-//       });
-//       return;
-//     }
-//     const jwtInfo = {
-//       id: user.id,
-//       username: user.username,
-//     };
-
-//     // Generate a token for the user for risky actions. Currently, only for account deletion
-//     const secret = process.env.DELETE_ACCOUNT_TOKEN_SECRET!
-//     const token = jwt.sign(jwtInfo, secret, { expiresIn: '3m' });
-
-//     createResponse(res, {
-//       data: {
-//         token,
-//       },
-//     });
-//   } catch (e) {
-//     createResponse(res, {
-//       status: HttpStatusCode.BadRequest,
-//       error: 'Bad Request',
-//     });
-//   }
-// };
 
 const registerBodyParser = z.object({
   username: z.string(),
@@ -197,7 +158,8 @@ const registerBodyParser = z.object({
   role: z.nativeEnum(role_type).optional(),
 });
 
-const verifyPasswordBodyParser = z.object({
+const loginBodyParser = z.object({
+  username: z.string(),
   password: z.string(),
 });
 
