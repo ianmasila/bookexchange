@@ -9,11 +9,11 @@ import { getBookById, updateBook } from '../utils/book';
 
 const getBidForBook: Handler = async (req: Request, res: Response) => {
   try {
-    const { bookId } = getBidForBookParser.parse(req.body);
+    const { id } = getBidForBookParser.parse(req.body);
     try {
       const bids = await prisma.bid.findMany({
         where: {
-          bookId,
+          bookId: id,
         },
         include: {
           bidder: {
@@ -49,7 +49,8 @@ const createBidForBook: Handler = async (req: Request, res: Response) => {
     const { username, bookId, amount } = createBidForBookParser.parse(req.body);
     try {
       const bidder = await getUserByIdOrUsername({ username });
-      const owner = await getBookById(bookId);
+      const book = await getBookById(bookId);
+      const owner = book?.owner;
       if (!bidder || !owner) {
         createResponse(res, {
           data: false,
@@ -57,8 +58,7 @@ const createBidForBook: Handler = async (req: Request, res: Response) => {
         });
         return;
       }
-      const book = await getBookById(bookId);
-      if (!book || book.locked) {
+      if (!book || book.locked || bidder.id === owner.id) {
         createResponse(res, {
           data: false,
           error: 'Error. Book is unavailable for bidding',
@@ -66,17 +66,41 @@ const createBidForBook: Handler = async (req: Request, res: Response) => {
         return;
       }
 
-      const newBook = await prisma.bid.create({
-        data: {
-          bidderId: bidder?.id,
-          ownerId: owner?.id,
+      // Check if a bid exists for the given bookId and bidderId
+      const existingBid = await prisma.bid.findFirst({
+        where: {
           bookId,
-          amount,
+          bidderId: bidder?.id,
         },
       });
 
+      let result;
+      if (existingBid) {
+        // Update the existing bid with the new data
+        const updatedBid = await prisma.bid.update({
+          where: {
+            id: existingBid.id,
+          },
+          data: {
+            amount,
+          },
+        });
+        result = updatedBid;
+      } else {
+        const newBid = await prisma.bid.create({
+          data: {
+            bidderId: bidder?.id,
+            ownerId: owner?.id,
+            bookId,
+            amount,
+          },
+        });
+
+        result = newBid;
+      }
+
       createResponse(res, {
-        data: newBook,
+        data: result,
       });
     } catch (e) {
       createResponse(res, {
@@ -201,7 +225,7 @@ const deleteBidForBook: Handler = async (req: Request, res: Response) => {
 };
 
 const getBidForBookParser = z.object({
-  bookId: z.string(),
+  id: z.string(),
 });
 
 const createBidForBookParser = z.object({

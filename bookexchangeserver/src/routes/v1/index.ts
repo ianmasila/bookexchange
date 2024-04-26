@@ -10,10 +10,12 @@ import TestRoutes from './test';
 import AuthRoutes from './auth';
 import UserRoutes from './user';
 import BookRoutes from './book';
+import BidRoutes from './bid';
 
 router.use('/test', TestRoutes);
 router.use('/auth', AuthRoutes);
 router.use('/user', UserRoutes);
 router.use('/book', BookRoutes);
+router.use('/bid', BidRoutes);
 
 export default router;
