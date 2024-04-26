@@ -28,4 +28,14 @@ const getUserByIdOrUsername = async (input: { id?: string; username?: string }) 
   return user;
 };
 
-export { getUserByIdOrUsername };
+const getAllUsersWithBooks = async () => {
+  const users = await prisma.user.findMany({
+    include: {
+      books: true,
+    },
+  });
+
+  return users;
+};
+
+export { getUserByIdOrUsername, getAllUsersWithBooks };

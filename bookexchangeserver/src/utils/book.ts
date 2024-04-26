@@ -8,6 +8,7 @@ interface UpdateBookInput {
   author?: string;
   genre?: string[];
   description?: string;
+  photoUrl?: string;
   locked?: boolean;
 }
 

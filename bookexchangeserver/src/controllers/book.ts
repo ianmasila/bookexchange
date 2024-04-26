@@ -171,44 +171,19 @@ const createBookHandler: Handler = async (req: Request, res: Response) => {
     const { username, title, author, genres, description, locked } = createBookParser.parse(req.body);
     try {
       const owner = await getUserByIdOrUsername({ username });
-      const existingBook = await prisma.book.findFirst({
-        where: {
+      const newBook = await prisma.book.create({
+        data: {
           title,
           author,
+          genre: genres,
+          description,
+          locked,
           ownerId: owner?.id,
         },
       });
 
-      let result;
-      if (existingBook) {
-        // If the book already exists, update its quantity by incrementing it
-        const updatedBook = await prisma.book.update({
-          where: {
-            id: existingBook.id,
-          },
-          data: {
-            quantity: {
-              increment: 1,
-            },
-          },
-        });
-        result = updatedBook;
-      } else {
-        const newBook = await prisma.book.create({
-          data: {
-            title,
-            author,
-            genre: genres,
-            description,
-            locked,
-            ownerId: owner?.id,
-          },
-        });
-        result = newBook;
-      }
-
       createResponse(res, {
-        data: result,
+        data: newBook,
       });
     } catch (e) {
       createResponse(res, {
@@ -268,6 +243,7 @@ const createBookParser = z.object({
   author: z.string(),
   genres: z.array(z.nativeEnum(genre)),
   description: z.string().optional(),
+  photoUrl: z.string().optional(),
   locked: z.boolean().optional().default(false),
 });
 
@@ -278,6 +254,8 @@ const updateBookParser = z.object({
   author: z.string().optional(),
   genres: z.array(z.nativeEnum(genre)).optional(),
   description: z.string().optional(),
+  photoUrl: z.string().optional(),
+  quantity: z.coerce.number().optional(),
   locked: z.boolean().optional(),
 });
 

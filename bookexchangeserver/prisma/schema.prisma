@@ -102,17 +102,17 @@ model role_resource {
 }
 
 model book {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ownerId     String?  @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ownerId     String?   @db.Uuid
   title       String
   author      String
   genre       genre[]
   description String?
   photoUrl    String?
-  quantity    Int?      @default(1)
-  locked      Boolean  @default(false)
-  createdAt   DateTime @default(now()) @db.Timestamp(6)
-  updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  locked      Boolean   @default(false)
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  updated_at  DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  deletedAt   DateTime? @db.Timestamp(6)
 
   owner  user?   @relation(fields: [ownerId], references: [id])
   bids   bid[]

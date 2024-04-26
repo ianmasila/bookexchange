@@ -2,7 +2,7 @@ import { Handler, Request, Response } from 'express';
 import { createResponse } from '../utils';
 import { z } from 'zod';
 import { HttpStatusCode } from 'axios';
-import { getUserByIdOrUsername } from '../utils/user';
+import { getUserByIdOrUsername, getAllUsersWithBooks } from '../utils/user';
 
 const getUserByIdOrUsernameHandler: Handler = async (req: Request, res: Response) => {
   try {
@@ -31,6 +31,18 @@ const getUserByIdOrUsernameHandler: Handler = async (req: Request, res: Response
   }
 };
 
+const getAllUsersHandler: Handler = async (req: Request, res: Response) => {
+  try {
+    const users = await getAllUsersWithBooks();
+    createResponse(res, { data: users });
+  } catch (e) {
+    createResponse(res, {
+      status: HttpStatusCode.InternalServerError,
+      error: 'Sorry. Something went wrong',
+    });
+  }
+};
+
 const getUserByIdOrUsernameParser = z.object({
   id: z.string().optional(),
   username: z.string().optional(),
@@ -38,4 +50,5 @@ const getUserByIdOrUsernameParser = z.object({
 
 export default {
   getUserByIdOrUsernameHandler,
+  getAllUsersHandler,
 };
