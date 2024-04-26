@@ -4,9 +4,8 @@ import { createResponse } from '../utils';
 import { z } from 'zod';
 import { HttpStatusCode } from 'axios';
 import { getUserByIdOrUsername } from '../utils/user';
-import { SG_TIMEZONE } from '../constants';
-import dayjs from 'dayjs';
 import { bid_status } from '@prisma/client';
+import { getBookById } from '../utils/book';
 
 const getBidForBook: Handler = async (req: Request, res: Response) => {
   try {
@@ -43,10 +42,11 @@ const createBidForBook: Handler = async (req: Request, res: Response) => {
     const { username, bookId, amount } = createBidForBookParser.parse(req.body);
     try {
       const bidder = await getUserByIdOrUsername({ username });
-      if (!bidder) {
+      const owner = await getBookById(bookId);
+      if (!bidder || !owner) {
         createResponse(res, {
           data: false,
-          error: 'Error. Please register to be able to place bids',
+          error: 'Error. Bidding is reserved for registered users',
         });
         return;
       }
@@ -54,6 +54,7 @@ const createBidForBook: Handler = async (req: Request, res: Response) => {
       const newBook = await prisma.bid.create({
         data: {
           bidderId: bidder?.id,
+          ownerId: owner?.id,
           bookId,
           amount,
         },
@@ -106,17 +107,17 @@ const updateBidForBook: Handler = async (req: Request, res: Response) => {
   }
 };
 
-// This endpoint is invoked when the owner of the book answers (accepts/declines) a bid
-const answerBidForBook: Handler = async (req: Request, res: Response) => {
+// This endpoint is invoked when the owner of the book declines a bid
+const declineBidForBook: Handler = async (req: Request, res: Response) => {
   try {
-    const { id, status } = answerBidForBookParser.parse(req.body);
+    const { id } = declineBidForBookParser.parse(req.body);
     try {
       const updatedBid = await prisma.bid.update({
         where: {
           id,
         },
         data: {
-          status,
+          status: bid_status.DECLINED,
         },
       });
 
@@ -179,9 +180,8 @@ const updateBidForBookParser = z.object({
   amount: z.coerce.number().optional().default(0),
 });
 
-const answerBidForBookParser = z.object({
+const declineBidForBookParser = z.object({
   id: z.string(),
-  status: z.nativeEnum(bid_status),
 });
 
 const deleteBidForBookParser = z.object({
@@ -192,6 +192,6 @@ export default {
   getBidForBook,
   createBidForBook,
   updateBidForBook,
-  answerBidForBook,
+  declineBidForBook,
   deleteBidForBook,
 };

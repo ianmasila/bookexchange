@@ -20,9 +20,6 @@ const getUserByIdOrUsername = async (input: { id?: string; username?: string }) 
     },
     include: {
       books: true,
-      bids: true,
-      sentTrades: true,
-      receivedTrades: true,
     },
   });
 

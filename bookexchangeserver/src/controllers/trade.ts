@@ -1,28 +1,17 @@
 import { Handler, Request, Response } from 'express';
-import { prisma } from '..';
 import { createResponse } from '../utils';
 import { z } from 'zod';
 import { HttpStatusCode } from 'axios';
-import { getUserByIdOrUsername } from '../utils/user';
-import { SG_TIMEZONE } from '../constants';
-import dayjs from 'dayjs';
-import { bid_status } from '@prisma/client';
 
-const getBidForBook: Handler = async (req: Request, res: Response) => {
+
+//TODO: Create trades and payments for accepted bids
+const completePayment: Handler = async (req: Request, res: Response) => {
   try {
-    const { bookId } = getBidForBookParser.parse(req.body);
+    const { tradeId } = paymentParser.parse(req.body);
     try {
-      const bids = await prisma.bid.findMany({
-        where: {
-          bookId,
-        },
-        // Get pending, declined, accepted bids in that order
-        orderBy: {
-          status: 'desc',
-        },
-      });
+      const isSuccess = true;
       createResponse(res, {
-        data: bids,
+        data: isSuccess,
       });
     } catch (e) {
       createResponse(res, {
@@ -38,159 +27,11 @@ const getBidForBook: Handler = async (req: Request, res: Response) => {
   }
 };
 
-const createBidForBook: Handler = async (req: Request, res: Response) => {
-  try {
-    const { username, bookId, amount } = createBidForBookParser.parse(req.body);
-    try {
-      const bidder = await getUserByIdOrUsername({ username });
-      if (!bidder) {
-        createResponse(res, {
-          data: false,
-          error: 'Error. Please register to be able to place bids',
-        });
-        return;
-      }
 
-      const newBook = await prisma.bid.create({
-        data: {
-          bidderId: bidder?.id,
-          bookId,
-          amount,
-        },
-      });
-
-      createResponse(res, {
-        data: newBook,
-      });
-    } catch (e) {
-      createResponse(res, {
-        status: HttpStatusCode.InternalServerError,
-        error: 'Sorry. Something went wrong',
-      });
-    }
-  } catch (e) {
-    createResponse(res, {
-      status: HttpStatusCode.BadRequest,
-      error: 'Bad request',
-    });
-  }
-};
-
-const updateBidForBook: Handler = async (req: Request, res: Response) => {
-  try {
-    const data = updateBidForBookParser.parse(req.body);
-    try {
-      const updatedBid = await prisma.bid.update({
-        where: {
-          id: data.id,
-        },
-        data: {
-          amount: data?.amount,
-        },
-      });
-
-      createResponse(res, {
-        data: updatedBid,
-      });
-    } catch (e) {
-      createResponse(res, {
-        status: HttpStatusCode.InternalServerError,
-        error: 'Sorry. Something went wrong',
-      });
-    }
-  } catch (e) {
-    createResponse(res, {
-      status: HttpStatusCode.BadRequest,
-      error: 'Bad request',
-    });
-  }
-};
-
-// This endpoint is invoked when the owner of the book declines a bid
-const declineBidForBook: Handler = async (req: Request, res: Response) => {
-  try {
-    const data = declineBidForBookParser.parse(req.body);
-    try {
-      const updatedBid = await prisma.bid.update({
-        where: {
-          id: data.id,
-        },
-        data: {
-          status: bid_status.DECLINED,
-        },
-      });
-
-      createResponse(res, {
-        data: updatedBid,
-      });
-    } catch (e) {
-      createResponse(res, {
-        status: HttpStatusCode.InternalServerError,
-        error: 'Sorry. Something went wrong',
-      });
-    }
-  } catch (e) {
-    createResponse(res, {
-      status: HttpStatusCode.BadRequest,
-      error: 'Bad request',
-    });
-  }
-};
-
-const deleteBidForBook: Handler = async (req: Request, res: Response) => {
-  try {
-    const { id } = deleteBidForBookParser.parse(req.body);
-    try {
-      const deletedBid = await prisma.bid.delete({
-        where: {
-          id,
-        },
-      });
-
-      createResponse(res, {
-        data: deletedBid,
-      });
-    } catch (e) {
-      createResponse(res, {
-        status: HttpStatusCode.InternalServerError,
-        error: 'Sorry. Something went wrong',
-      });
-    }
-  } catch (e) {
-    createResponse(res, {
-      status: HttpStatusCode.BadRequest,
-      error: 'Bad request',
-    });
-  }
-};
-
-const getBidForBookParser = z.object({
-  bookId: z.string(),
-});
-
-const createBidForBookParser = z.object({
-  username: z.string(),
-  bookId: z.string(),
-  amount: z.coerce.number().optional().default(0),
-});
-
-const updateBidForBookParser = z.object({
-  id: z.string(),
-  amount: z.coerce.number().optional().default(0),
-});
-
-const declineBidForBookParser = z.object({
-  id: z.string(),
-});
-
-const deleteBidForBookParser = z.object({
-  id: z.string(),
+const paymentParser = z.object({
+  tradeId: z.string(),
 });
 
 export default {
-  getBidForBook,
-  createBidForBook,
-  updateBidForBook,
-  declineBidForBook,
-  deleteBidForBook,
+  completePayment,
 };

@@ -12,6 +12,19 @@ interface UpdateBookInput {
   locked?: boolean;
 }
 
+const getBookById = async (id: string) => {
+  const book = await prisma.book.findFirst({
+    where: {
+      id,
+    },
+    include: {
+      owner: true,
+    },
+  });
+
+  return book;
+};
+
 const updateBook = async (data: UpdateBookInput) => {
   // Filter out fields with undefined values
   const filteredUpdateData = Object.fromEntries(Object.entries(data).filter(([_, value]) => value !== undefined));
@@ -28,4 +41,4 @@ const updateBook = async (data: UpdateBookInput) => {
   return updatedBook;
 };
 
-export { updateBook };
+export { getBookById, updateBook };
