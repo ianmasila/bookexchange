@@ -6,7 +6,7 @@ _bookExchange_ is an application for exchanging books online, aimed at giving us
 
 Users may access _bookEchange_ here: <https://bookexchange.fly.dev>.
 
-### Guidelines for running the application locally
+### How to run the application locally
 
 To run _bookExchange_ locally, follow the following instructions:
 

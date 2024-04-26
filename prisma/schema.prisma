@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum role_type {
+  ADMINISTRATOR
+  USER
+}
+
+// A user with role-based authorisation
+model user {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username  String    @unique
+  password  String
+  createdAt DateTime  @default(now()) @db.Timestamp(6)
+  deletedAt DateTime? @db.Timestamp(6)
+
+  userRoles user_role[]
+}
+
+// A collection of permissions on a specific collection of resources
+model role {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        role_type @unique @default(USER)
+  description String?
+  createdAt   DateTime  @default(now()) @db.Timestamp(6)
+  deletedAt   DateTime? @db.Timestamp(6)
+
+  userRoles     user_role[]
+  roleResources role_resource[]
+}
+
+// A part of the application to be secured
+model resource {
+  id   String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name String @unique
+
+  RoleResource role_resource[]
+}
+
+// Define UserRole model
+model user_role {
+  userId String
+  roleId String
+
+  // Define the relationship between User and Role
+  user user @relation(fields: [userId], references: [id])
+  role role @relation(fields: [roleId], references: [id])
+
+  // Define the combined primary key
+  @@id([userId, roleId])
+}
+
+// Define RoleResource model
+model role_resource {
+  roleId     String
+  resourceId String
+
+  // Define the relationship between Role and Resource
+  role     role     @relation(fields: [roleId], references: [id])
+  resource resource @relation(fields: [resourceId], references: [id])
+
+  // Define the combined primary key
+  @@id([roleId, resourceId])
+}
