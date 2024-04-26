@@ -182,7 +182,7 @@ const getBooksByGenreHandler: Handler = async (req: Request, res: Response) => {
 
 const createBookHandler: Handler = async (req: Request, res: Response) => {
   try {
-    const { username, title, author, genres, description, locked } = createBookParser.parse(req.body);
+    const { username, title, author, genre, description, locked } = createBookParser.parse(req.body);
     try {
       const owner = await getUserByIdOrUsername({ username });
       if (!owner) {
@@ -196,7 +196,7 @@ const createBookHandler: Handler = async (req: Request, res: Response) => {
         data: {
           title,
           author,
-          genre: genres,
+          genre,
           description,
           locked,
           ownerId: owner.id,
@@ -262,7 +262,7 @@ const createBookParser = z.object({
   username: z.string(),
   title: z.string(),
   author: z.string(),
-  genres: z.array(z.nativeEnum(genre)).optional(),
+  genre: z.array(z.nativeEnum(genre)).optional(),
   description: z.string().optional(),
   photoUrl: z.string().optional(),
   locked: z.boolean().optional().default(false),
@@ -273,7 +273,7 @@ const updateBookParser = z.object({
   ownerId: z.string().optional(),
   title: z.string().optional(),
   author: z.string().optional(),
-  genres: z.array(z.nativeEnum(genre)).optional(),
+  genre: z.array(z.nativeEnum(genre)).optional(),
   description: z.string().optional(),
   photoUrl: z.string().optional(),
   quantity: z.coerce.number().optional(),
