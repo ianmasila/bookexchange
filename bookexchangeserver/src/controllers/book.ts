@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { HttpStatusCode } from 'axios';
 import { genre } from '@prisma/client';
 import { getUserByIdOrUsername } from '../utils/user';
-import user from './user';
+import { updateBook } from '../utils/book';
 
 /**
  * Get book based on the title
@@ -166,24 +166,71 @@ const getBooksByGenreHandler: Handler = async (req: Request, res: Response) => {
   }
 };
 
-const createBook: Handler = async (req: Request, res: Response) => {
+const createBookHandler: Handler = async (req: Request, res: Response) => {
   try {
     const { username, title, author, genres, description, locked } = createBookParser.parse(req.body);
     try {
       const owner = await getUserByIdOrUsername({ username });
-      const newBook = await prisma.book.create({
-        data: {
+      const existingBook = await prisma.book.findFirst({
+        where: {
           title,
           author,
-          genre: genres,
-          description,
-          locked,
           ownerId: owner?.id,
         },
       });
 
+      let result;
+      if (existingBook) {
+        // If the book already exists, update its quantity by incrementing it
+        const updatedBook = await prisma.book.update({
+          where: {
+            id: existingBook.id,
+          },
+          data: {
+            quantity: {
+              increment: 1,
+            },
+          },
+        });
+        result = updatedBook;
+      } else {
+        const newBook = await prisma.book.create({
+          data: {
+            title,
+            author,
+            genre: genres,
+            description,
+            locked,
+            ownerId: owner?.id,
+          },
+        });
+        result = newBook;
+      }
+
       createResponse(res, {
-        data: newBook,
+        data: result,
+      });
+    } catch (e) {
+      createResponse(res, {
+        status: HttpStatusCode.InternalServerError,
+        error: 'Sorry. Something went wrong',
+      });
+    }
+  } catch (e) {
+    createResponse(res, {
+      status: HttpStatusCode.BadRequest,
+      error: 'Bad request',
+    });
+  }
+};
+
+const updateBookHandler: Handler = async (req: Request, res: Response) => {
+  try {
+    const data = updateBookParser.parse(req.body);
+    try {
+      const updatedBook = await updateBook(data);
+      createResponse(res, {
+        data: updatedBook,
       });
     } catch (e) {
       createResponse(res, {
@@ -224,10 +271,21 @@ const createBookParser = z.object({
   locked: z.boolean().optional().default(false),
 });
 
+const updateBookParser = z.object({
+  id: z.string(),
+  ownerId: z.string().optional(),
+  title: z.string().optional(),
+  author: z.string().optional(),
+  genres: z.array(z.nativeEnum(genre)).optional(),
+  description: z.string().optional(),
+  locked: z.boolean().optional(),
+});
+
 export default {
   getBookByTitleHandler,
   getBooksByAuthorHandler,
   getBooksByOwnerHandler,
   getBooksByGenreHandler,
-  createBook,
+  createBookHandler,
+  updateBookHandler,
 };

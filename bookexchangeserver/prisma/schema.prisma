@@ -108,6 +108,8 @@ model book {
   author      String
   genre       genre[]
   description String?
+  photoUrl    String?
+  quantity    Int?      @default(1)
   locked      Boolean  @default(false)
   createdAt   DateTime @default(now()) @db.Timestamp(6)
   updated_at  DateTime @default(now()) @updatedAt @db.Timestamp(6)
