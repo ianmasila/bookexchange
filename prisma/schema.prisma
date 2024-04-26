@@ -51,8 +51,8 @@ model resource {
 
 // Define UserRole model
 model user_role {
-  userId String
-  roleId String
+  userId String @db.Uuid
+  roleId String @db.Uuid
 
   // Define the relationship between User and Role
   user user @relation(fields: [userId], references: [id])
@@ -64,8 +64,8 @@ model user_role {
 
 // Define RoleResource model
 model role_resource {
-  roleId     String
-  resourceId String
+  roleId     String @db.Uuid
+  resourceId String @db.Uuid
 
   // Define the relationship between Role and Resource
   role     role     @relation(fields: [roleId], references: [id])
