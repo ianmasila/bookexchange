@@ -34,6 +34,7 @@ const getBooksByAuthor = async (author: string) => {
     include: {
       owner: true,
     },
+    orderBy: [{ title: 'asc' }, { createdAt: 'desc' }],
   });
 
   return books;
@@ -52,6 +53,7 @@ const getBooksByOwner = async (username: string) => {
     include: {
       owner: true,
     },
+    orderBy: [{ title: 'asc' }, { createdAt: 'desc' }],
   });
 
   return books;
@@ -73,6 +75,7 @@ const getBooksByGenre = async (genres: genre[]) => {
     include: {
       owner: true,
     },
+    orderBy: [{ title: 'asc' }, { createdAt: 'desc' }],
   });
 
   return books;
@@ -80,7 +83,9 @@ const getBooksByGenre = async (genres: genre[]) => {
 
 const getAllBooksHandler: Handler = async (req: Request, res: Response) => {
   try {
-    const books = await prisma.book.findMany({});
+    const books = await prisma.book.findMany({
+      orderBy: [{ title: 'asc' }, { createdAt: 'desc' }],
+    });
     createResponse(res, {
       data: books,
     });
