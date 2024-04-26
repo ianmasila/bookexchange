@@ -57,6 +57,14 @@ const createBidForBook: Handler = async (req: Request, res: Response) => {
         });
         return;
       }
+      const book = await getBookById(bookId);
+      if (!book || book.locked) {
+        createResponse(res, {
+          data: false,
+          error: 'Error. Book is unavailable for bidding',
+        });
+        return;
+      }
 
       const newBook = await prisma.bid.create({
         data: {

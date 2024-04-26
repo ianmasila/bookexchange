@@ -78,6 +78,20 @@ const getBooksByGenre = async (genres: genre[]) => {
   return books;
 };
 
+const getAllBooksHandler: Handler = async (req: Request, res: Response) => {
+  try {
+    const books = await prisma.book.findMany({});
+    createResponse(res, {
+      data: books,
+    });
+  } catch (e) {
+    createResponse(res, {
+      status: HttpStatusCode.InternalServerError,
+      error: 'Sorry. Something went wrong',
+    });
+  }
+};
+
 const getBookByTitleHandler: Handler = async (req: Request, res: Response) => {
   try {
     const { title } = getBookByTitleParser.parse(req.body);
@@ -146,9 +160,9 @@ const getBooksByOwnerHandler: Handler = async (req: Request, res: Response) => {
 
 const getBooksByGenreHandler: Handler = async (req: Request, res: Response) => {
   try {
-    const { genres } = getBooksByGenreParser.parse(req.body);
+    const { genre } = getBooksByGenreParser.parse(req.body);
     try {
-      const books = await getBooksByGenre(genres);
+      const books = await getBooksByGenre(genre);
       createResponse(res, {
         data: books,
       });
@@ -241,14 +255,14 @@ const getBooksByOwnerParser = z.object({
 });
 
 const getBooksByGenreParser = z.object({
-  genres: z.array(z.nativeEnum(genre)),
+  genre: z.array(z.nativeEnum(genre)),
 });
 
 const createBookParser = z.object({
   username: z.string(),
   title: z.string(),
   author: z.string(),
-  genres: z.array(z.nativeEnum(genre)),
+  genres: z.array(z.nativeEnum(genre)).optional(),
   description: z.string().optional(),
   photoUrl: z.string().optional(),
   locked: z.boolean().optional().default(false),
@@ -267,6 +281,7 @@ const updateBookParser = z.object({
 });
 
 export default {
+  getAllBooksHandler,
   getBookByTitleHandler,
   getBooksByAuthorHandler,
   getBooksByOwnerHandler,
