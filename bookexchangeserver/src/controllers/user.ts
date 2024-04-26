@@ -33,7 +33,7 @@ const getUserByIdOrUsernameHandler: Handler = async (req: Request, res: Response
 
 const getAllUsersHandler: Handler = async (req: Request, res: Response) => {
   try {
-    const users = await getAllUsersWithBooks();
+  const users = await getAllUsersWithBooks();
     createResponse(res, { data: users });
   } catch (e) {
     createResponse(res, {

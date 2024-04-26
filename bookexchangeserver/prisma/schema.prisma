@@ -33,6 +33,12 @@ enum genre {
   THRILLER
 }
 
+enum bid_status {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
 enum payment_status {
   PENDING
   SUCCESS
@@ -41,12 +47,13 @@ enum payment_status {
 
 // A user with role-based authorisation
 model user {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  username  String    @unique
-  password  String
-  coin      Int       @default(0)
-  createdAt DateTime  @default(now()) @db.Timestamp(6)
-  deletedAt DateTime? @db.Timestamp(6)
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  username   String    @unique
+  password   String
+  coin       Int       @default(0)
+  createdAt  DateTime  @default(now()) @db.Timestamp(6)
+  updated_at DateTime  @default(now()) @updatedAt @db.Timestamp(6)
+  deletedAt  DateTime? @db.Timestamp(6)
 
   userRoles      user_role[]
   books          book[]
@@ -120,12 +127,13 @@ model book {
 }
 
 model bid {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  bidderId   String   @db.Uuid
-  bookId     String   @db.Uuid
-  amount     Float    @default(0)
-  createdAt  DateTime @default(now()) @db.Timestamp(6)
-  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
+  id         String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bidderId   String     @db.Uuid
+  bookId     String     @db.Uuid
+  amount     Float      @default(0)
+  status     bid_status @default(PENDING)
+  createdAt  DateTime   @default(now()) @db.Timestamp(6)
+  updated_at DateTime   @default(now()) @updatedAt @db.Timestamp(6)
 
   bidder user @relation(fields: [bidderId], references: [id])
   book   book @relation(fields: [bookId], references: [id])

@@ -18,6 +18,7 @@ const updateBook = async (data: UpdateBookInput) => {
   const updatedBook = await prisma.book.update({
     where: {
       id: data.id,
+      deletedAt: null,
     },
     data: {
       ...filteredUpdateData,

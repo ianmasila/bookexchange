@@ -1,8 +1,10 @@
 import express from 'express';
 const router = express.Router();
 
-// TODO: Use for protected routes
-// import { isLoggedInMiddleware } from '../../middleware/auth';
+/*
+** TODO: Authentication & Authorisation
+** Use for protected routes once session is implemented so that user privacy and security is enforced
+*/
 
 import TestRoutes from './test';
 import AuthRoutes from './auth';

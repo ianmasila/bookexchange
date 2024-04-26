@@ -16,6 +16,7 @@ const getUserByIdOrUsername = async (input: { id?: string; username?: string }) 
           username: input.username,
         },
       ],
+      deletedAt: null,
     },
     include: {
       books: true,
@@ -30,6 +31,9 @@ const getUserByIdOrUsername = async (input: { id?: string; username?: string }) 
 
 const getAllUsersWithBooks = async () => {
   const users = await prisma.user.findMany({
+    where: {
+      deletedAt: null,
+    },
     include: {
       books: true,
     },
