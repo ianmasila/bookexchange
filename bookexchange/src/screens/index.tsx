@@ -1,8 +1,6 @@
-import React from "react";
 import { useHealthCheck } from "../hooks/api/test";
 import logo from "../logo.svg";
 import "../App.css";
-import { Controller, useForm } from "react-hook-form";
 import { BASE_URL } from "../constants";
 
 function Home() {
