@@ -96,12 +96,11 @@ const register: Handler = async (req: Request, res: Response) => {
       if (user) {
         createResponse(res, {
           status: HttpStatusCode.BadRequest,
-          error: `${username} unavailable`,
+          error: `'${username}' unavailable`,
         });
         return;
       }
-
-      const foundRole = await prisma.role.findUnique({
+      const foundRole = await prisma.role.findFirst({
         where: {
           name: role,
         },
@@ -131,12 +130,13 @@ const register: Handler = async (req: Request, res: Response) => {
         },
       });
 
-      const isAdministrator = newUser.userRoles.some((userRole) => userRole.role.name === role_type.ADMINISTRATOR);
-      const { token } = createAuthJwts(newUser, isAdministrator ? role_type.ADMINISTRATOR : role_type.USER);
+      // TODO: Uncomment once session is implemented
+      // const isAdministrator = newUser.userRoles.some((userRole) => userRole.role.name === role_type.ADMINISTRATOR);
+      // const { token } = createAuthJwts(newUser, isAdministrator ? role_type.ADMINISTRATOR : role_type.USER);
       const userWithoutPassword = excludeFromObject(newUser, ['password']);
 
       createResponse(res, {
-        data: { user: userWithoutPassword, token },
+        data: { user: userWithoutPassword },
       });
     } catch (e) {
       createResponse(res, {
