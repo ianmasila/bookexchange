@@ -18,6 +18,21 @@ enum role_type {
   USER
 }
 
+enum genre {
+  AUTOBIOGRAPHY
+  BIOGRAPHY
+  FANTASY
+  FICTION
+  HISTORICAL_FICTION
+  HORROR
+  MYSTERY
+  POETRY
+  ROMANCE
+  SCIENCE_FICTION
+  SELF_HELP
+  THRILLER
+}
+
 enum payment_status {
   PENDING
   SUCCESS
@@ -91,6 +106,7 @@ model book {
   ownerId     String?  @db.Uuid
   title       String
   author      String
+  genre       genre[]
   description String?
   locked      Boolean  @default(false)
   createdAt   DateTime @default(now()) @db.Timestamp(6)
@@ -105,7 +121,7 @@ model bid {
   id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   bidderId   String   @db.Uuid
   bookId     String   @db.Uuid
-  amount     Float
+  amount     Float    @default(0)
   createdAt  DateTime @default(now()) @db.Timestamp(6)
   updated_at DateTime @default(now()) @updatedAt @db.Timestamp(6)
 

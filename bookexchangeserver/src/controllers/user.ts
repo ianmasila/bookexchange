@@ -3,38 +3,8 @@ import { prisma } from '..';
 import { createResponse } from '../utils';
 import { z } from 'zod';
 import { HttpStatusCode } from 'axios';
+import { getUserByIdOrUsername } from '../utils/user';
 
-// Helper functions
-const getUserByIdOrUsername = async (input: { id: string | undefined; username: string | undefined }) => {
-  if (input.id === undefined && input.username === undefined) {
-    return null;
-  }
-  const user = await prisma.user.findFirst({
-    where: {
-      OR: [
-        {
-          id: input.id,
-        },
-        {
-          username: input.username,
-        },
-      ],
-    },
-    include: {
-      userRoles: {
-        include: {
-          role: true,
-        },
-      },
-    },
-  });
-
-  return user;
-};
-
-/**
- * This is using an OR operator to check if the username or email exists
- */
 const getUserByIdOrUsernameHandler: Handler = async (req: Request, res: Response) => {
   try {
     const { id, username } = getUserByIdOrUsernameParser.parse(req.body);
