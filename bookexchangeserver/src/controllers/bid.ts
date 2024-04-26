@@ -95,7 +95,6 @@ const createBidForBook: Handler = async (req: Request, res: Response) => {
             amount,
           },
         });
-
         result = newBid;
       }
 
@@ -208,7 +207,7 @@ const deleteBidForBook: Handler = async (req: Request, res: Response) => {
       });
 
       createResponse(res, {
-        data: deletedBid,
+        data: true,
       });
     } catch (e) {
       createResponse(res, {

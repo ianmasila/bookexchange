@@ -36,6 +36,13 @@ const updateBook = async (data: UpdateBookInput) => {
     data: {
       ...filteredUpdateData,
     },
+    include: {
+      owner: {
+        select: {
+          username: true
+        }
+      },
+    },
   });
 
   return updatedBook;
