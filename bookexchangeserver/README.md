@@ -6,7 +6,9 @@ _bookExchange_ is an application for exchanging books online, aimed at giving us
 
 This is the server for _bookExchange_. It uses `Node.js`, `Express`, `TypeScript`, `Prisma`, and `PostgreSQL` as the core technologies.
 
-Please note that authentication and authorisation will be implemented later on with sessions.
+Some key technical decisions include using Prisma for database ORM and migrations, using a microservices architecture for modularity, and setting up middleware for request pre-processing. Please note that since this preliminary version of the server is meant for curls, authentication, authorisation, and sessions will be implemented later on.
+
+Some key product features include registration of users, searching for users, creating book entries for books belonging to a user, updating said books, listing all books, searching for books by title, author, genre, and owner, and creating bids for books one is interested in. This ecosystem focuses on the core mission of _bookExchange_, exchanging books whilst building a sense of community around readership.
 
 ### How to run the application locally
 
@@ -20,7 +22,7 @@ To run _bookExchange_ locally, follow the following instructions:
 
 This section will demonstrate an example flow for managing users, book entries, and bids for books. Note that I assume the user is using a REST API client to make a `get` and `post` request to the server with an optional query body. Note that <http://localhost:8080/api/v1> is hereby referred to as `base_url`.
 
-Feel free to translate to curl statements that can be run on terminal. For example, to check whether the server is running, run `curl -X POST -H "Content-Type: application/json" -d '{ "username": "your_username", "password": "your_password" }' http://localhost:8080/api/v1/auth/register`.
+Feel free to translate to curl statements that can be run on terminal. For example, to check whether the server is running, run `curl -X GET http://localhost:8080/api/v1/test/health`.
 
 1. To check the server is running, _get_ base_url/test/health.
 2. To register a user to _bookExchange_, _post_ base_url/auth/register with query body
