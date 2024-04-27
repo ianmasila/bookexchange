@@ -4,9 +4,7 @@ _bookExchange_ is an application for exchanging books online, aimed at giving us
 
 ### Overview
 
-This is the server for _bookExchange_. The application's frontend found at `bookexchange` directory is a skeleton and will require future development to bring it to a usable state. Therefore, users should use the server, found at `bookexchangeserver` exclusively, _curling_ to make requests, according to the routing in `src/routes`. The server uses `Node.js`, `Express`, `TypeScript`, `Prisma`, and `PostgreSQL` as the core technologies.
-
-Note that one must install postgresql, create a local database server, and generate a prisma client to connect the server to the database. Please follow the directions in this post: <https://medium.com/@codethematrix/integrating-prisma-orm-with-postgresql-and-express-3f7b726cecec>.
+This is the server for _bookExchange_. It uses `Node.js`, `Express`, `TypeScript`, `Prisma`, and `PostgreSQL` as the core technologies.
 
 Please note that authentication and authorisation will be implemented later on with sessions.
 
@@ -14,14 +12,13 @@ Please note that authentication and authorisation will be implemented later on w
 
 To run _bookExchange_ locally, follow the following instructions:
 
-1. Open a terminal in the project's directory, `bookexchangeserver`, and run `npm start`.
-2. Ensure you have a local `postgres` database running, configured to the following database url: `postgres://postgres:postgres@localhost:5432/bookexchange-db`. Note that the database url follows the following format, `postgres://YourUsername:YourPassword@localhost:YourPortNumber/YourDatabaseName`, so ensure that you create your database to match the database url above.
-3. Open a browser window and access _bookExchange_ at <http://localhost:8080/api/v1> or open a terminal to curl the server's endpoints.
-4. I recommend using `Thunder Client`, a lightweight Rest API client for VS Code to make curling easier. Use query bodies for your requests, following the routes in the routes folder of the server. See the user journey for a walkthrough.
+1. Open a terminal in the project's directory, `bookexchangeserver`, and run `npm start` to launch the server.
+2. Ensure you have a local `postgres` database running, configured to the following database url: `postgres://postgres:postgres@localhost:5432/bookexchange-db`. Note that the database url follows the following format, `postgres://YourUsername:YourPassword@localhost:YourPortNumber/YourDatabaseName`, so ensure that you create your database to match the database url above. Follow the instructions here to install postgresql, create a local database server, and generate a prisma client to connect the server to the database. Please follow the directions in this post: <https://medium.com/@codethematrix/integrating-prisma-orm-with-postgresql-and-express-3f7b726cecec>.
+3. Open a browser window and access _bookExchange_ at <http://localhost:8080/api/v1> or open a terminal to curl the server's endpoints. I recommend using `Thunder Client`, a lightweight Rest API client for VS Code to make curling easier. Use query bodies for your requests, following the routes in the routes folder of the server. See the user journey for a walkthrough.
 
 ### User journey
 
-This section will demonstrate an example use case flow once the server and database are up and running. Note that I assume the user is using a REST API client to make a `get` and `post` request to the server with an optional query body. Note that <http://localhost:8080/api/v1> is hereby referred to as `base_url`.
+This section will demonstrate an example flow for managing users, book entries, and bids for books. Note that I assume the user is using a REST API client to make a `get` and `post` request to the server with an optional query body. Note that <http://localhost:8080/api/v1> is hereby referred to as `base_url`.
 
 Feel free to translate to curl statements that can be run on terminal. For example, to check whether the server is running, run `curl -X POST -H "Content-Type: application/json" -d '{ "username": "your_username", "password": "your_password" }' http://localhost:8080/api/v1/auth/register`.
 
