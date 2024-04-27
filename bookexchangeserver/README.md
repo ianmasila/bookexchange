@@ -132,13 +132,26 @@ Feel free to translate to curl statements that can be run on terminal. For examp
 
 Note that the application only supports genres and bid statuses listed in `enum genre` and `enum bid_status` of `prisma/schema.prisma` respectively.
 
-### Future plans
+### Future Plans
 
-In future, I plan to containerise the application with Docker to make the setup much easier and use `AWS ECS` to host the containerised application. Users will be able to conveniently access _bookEchange_ on any browser once hosting is done. I intend to expand on the microservices architecture to develop more robust and supported features faster by leveraging AWS services.
+In the future, I have ambitious plans to enhance the _bookExchange_ platform and provide an even better experience for our users:
 
-To increase user engagement, I plan to support book images and chats with `Amazon S3` for storage, `Amazon SNS` for notifications, and `Amazon Lambda` for serverless functions and scheduled jobs. I also plan to complete the React frontend, leveraging axios to communicate with the server to make the user experience better.
+1. **Containerization with Docker:** I plan to containerise the application using Docker, streamlining the setup process and making deployment more efficient.
+
+2. **Hosting on AWS ECS:** Leveraging AWS ECS (Elastic Container Service), I aim to host the containerized application, ensuring high availability and scalability. Once deployed, users will be able to access _bookExchange_ conveniently from any browser.
+
+3. **Expansion of Microservices Architecture:** I am committed to expanding our microservices architecture to develop more robust and feature-rich functionalities rapidly. By leveraging AWS services, I will ensure better support and scalability for future developments.
+
+4. **Enhanced User Engagement Features:**
+
+   - **Support for Book Images:** I plan to introduce support for book images, allowing users to visually showcase their books.
+   - **Integrated Chat Functionality:** Implementing chat functionality using Amazon S3 for storage and Amazon SNS for notifications will enhance user interactions and facilitate communication between users.
+   - **Serverless Functions with Amazon Lambda:** I will utilize Amazon Lambda for serverless functions and scheduled jobs, optimizing resource utilization and improving overall system performance.
+
+5. **Completion of React Frontend:** My frontend development efforts will focus on completing the React frontend. Leveraging axios for seamless communication with the server, I aim to enhance the user experience and provide a modern, intuitive interface for _bookExchange_.
+
+These future plans reflect my commitment to continuous improvement and innovation, ensuring that _bookExchange_ establishes itself at the forefront of online book exchange platforms.
 
 ### Remarks
 
-Please feel free to [email](mailto:ianmasilafst@gmail.com)
-for a live demonstration if needed. Thank you for taking the time to interact with the application!
+Please feel free to contact me via [email](mailto:ianmasilafst@gmail.com). Thank you for using _bookExchange_!
