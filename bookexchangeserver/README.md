@@ -121,4 +121,5 @@ To increase user engagement, I plan to support book images and chats with `Amazo
 
 ### Remarks
 
-Please feel free to contact me at `ianmasilafst@gmail.com` for a live demonstration if needed. Thank you for taking the time to interact with the application!
+Please feel free to [email](mailto:ianmasilafst@gmail.com)
+for a live demonstration if needed. Thank you for taking the time to interact with the application!
