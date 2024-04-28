@@ -35,7 +35,7 @@ Our ecosystem is centered around the core mission of _bookExchange_: facilitatin
 To run _bookExchange_ locally, follow the following instructions:
 
 1. Open a terminal in the project's directory, `bookexchangeserver`, and run `npm start` to launch the server.
-2. Ensure you have a local `postgres` database running, configured to the following database url: `postgres://postgres:postgres@localhost:5432/bookexchange-db`. Note that the database url follows the following format, `postgres://YourUsername:YourPassword@localhost:YourPortNumber/YourDatabaseName`, so ensure that you create your database to match the database url above. Follow the instructions here to install postgresql, create a local database server, and generate a prisma client to connect the server to the database. Please follow the directions in this post: <https://medium.com/@codethematrix/integrating-prisma-orm-with-postgresql-and-express-3f7b726cecec>.
+2. Ensure you have a local `postgres` database running, configured to the following database url: `postgres://postgres:postgres@localhost:5432/bookexchange-db`. Note that the database url follows the following format, `postgres://YourUsername:YourPassword@localhost:YourPortNumber/YourDatabaseName`, so ensure that you create your database to match the database url above. Follow the instructions here to install postgresql, create a local database server, and generate a prisma client to connect the server to the database. Please follow the directions in this post: <https://medium.com/@codethematrix/integrating-prisma-orm-with-postgresql-and-express-3f7b726cecec>. Remember to add a `.env` file with the database url in the root directory.
 3. Open a browser window and access _bookExchange_ at <http://localhost:8080/api/v1> or open a terminal to curl the server's endpoints. I recommend using `Thunder Client`, a lightweight Rest API client for VS Code to make curling easier. Use query bodies for your requests, following the routes in the routes folder of the server. See the user journey for a walkthrough.
 
 ### User journey
@@ -124,7 +124,7 @@ Feel free to translate to curl statements that can be run on terminal. For examp
 { "id": "string" }
 ```
 
-16. To answer \(accept/decline\) a bid of `id` for a book, _get_ baseurl/bid/list with query body
+16. To answer \(accept/decline\) a bid of `id` for a book, _get_ baseurl/bid/answer with query body
 
 ```
 { "id": "string", "status": "bid_status enum string" }
@@ -148,7 +148,13 @@ In the future, I have ambitious plans to enhance the _bookExchange_ platform and
    - **Integrated Chat Functionality:** Implementing chat functionality using Amazon S3 for storage and Amazon SNS for notifications will enhance user interactions and facilitate communication between users.
    - **Serverless Functions with Amazon Lambda:** I will utilize Amazon Lambda for serverless functions and scheduled jobs, optimizing resource utilization and improving overall system performance.
 
-5. **Completion of React Frontend:** My frontend development efforts will focus on completing the React frontend. Leveraging axios for seamless communication with the server, I aim to enhance the user experience and provide a modern, intuitive interface for _bookExchange_.
+5. **Enhanced Security with Amazon IAM:** In our ongoing efforts to bolster the security of our application's resources, we plan to leverage Amazon IAM (Identity and Access Management) to implement robust access controls and authentication mechanisms. Below are some key strategies we intend to implement:
+
+   - **Role-Based Access Control (RBAC)**: Define IAM roles for different categories of users or services within our application. Assign permissions based on these roles to restrict access appropriately.
+
+   - **Multi-Factor Authentication (MFA)**: Enforce MFA for IAM users, especially for privileged accounts. This adds an extra layer of security by requiring users to provide additional verification beyond their password.
+
+6. **Completion of React Frontend:** My frontend development efforts will focus on completing the React frontend. Leveraging axios for seamless communication with the server, I aim to enhance the user experience and provide a modern, intuitive interface for _bookExchange_.
 
 These future plans reflect my commitment to continuous improvement and innovation, ensuring that _bookExchange_ establishes itself at the forefront of online book exchange platforms.
 
